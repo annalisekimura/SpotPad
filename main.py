@@ -2,7 +2,7 @@ import requests
 import urllib.parse
 
 from datetime import datetime, timedelta
-from flask import Flask, redirect, request, jsonify, session
+from flask import Flask, redirect, request, jsonify, session, render_template
 
 app = Flask(__name__)
 app.secret_key = '53d355f8-571a-4590-a310-1f9579440851'
@@ -15,10 +15,16 @@ AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
 API_BASE_URL = 'https://api.spotify.com/v1/'
 
+# global variables to store data
+global_playlists_data = []
+global_songs = []
+
+# home page route
 @app.route('/')
 def index():
     return "Welcome to my Spotify App <a href='/login'>Login with Spotify</a>"
 
+# login route
 @app.route('/login')
 def login():
     scope = 'user-read-private user-read-email'
@@ -35,6 +41,7 @@ def login():
 
     return redirect(auth_url)
 
+# redirect from login to get tokens
 @app.route('/callback')
 def callback():
     if 'error' in request.args:
@@ -57,10 +64,15 @@ def callback():
         session['expires_at'] = datetime.now().timestamp()  + token_info['expires_in']
 
         return redirect('/playlists')
-    
 
+
+
+
+# route to get playlists
 @app.route('/playlists')
 def get_playlists():
+    global global_playlists_data
+
     if 'access_token' not in session:
         return redirect('/login')
     
@@ -72,12 +84,59 @@ def get_playlists():
     }
 
     response = requests.get(API_BASE_URL + 'me/playlists', headers=headers)
-    playlists = response.json()
+    playlists_data = response.json()['items']
 
-    return jsonify(playlists)
+    global_playlists_data = playlists_data
 
 
+    return render_template('layout.html', playlists=global_playlists_data)
 
+# route to get tracks in a playlist
+@app.route('/playlists/<playlist_id>/tracks')
+def get_tracks(playlist_id):
+    global global_playlists_data
+
+    if 'access_token' not in session:
+        return redirect('/login')
+    
+    if datetime.now().timestamp() > session['expires_at']:
+        return redirect('/refresh_token')
+    
+    headers = {
+        'Authorization': f'Bearer {session["access_token"]}'
+    }
+
+    response = requests.get(API_BASE_URL + f'playlists/{playlist_id}/tracks', headers=headers)
+    tracks_data = response.json()['items']
+
+    return render_template('tracks.html', tracks=tracks_data, playlists=global_playlists_data)
+
+# route to display a song
+@app.route('/tracks/<songs_id>')
+def get_songs(songs_id):
+    global global_playlists_data
+    global global_songs
+
+    if 'access_token' not in session:
+        return redirect('/login')
+    
+    if datetime.now().timestamp() > session['expires_at']:
+        return redirect('/refresh_token')
+    
+    headers = {
+        'Authorization': f'Bearer {session["access_token"]}'
+    }
+
+    response = requests.get(API_BASE_URL + f'tracks/{songs_id}', headers=headers)
+    songs_data = response.json()
+
+    if songs_data not in global_songs:
+        global_songs.append(songs_data)
+
+    return render_template('songs.html', songs=global_songs, playlists=global_playlists_data)
+
+
+# route to refresh expired token
 @app.route('/refresh_token')
 def refresh_token():
     if 'refresh_token' not in session:

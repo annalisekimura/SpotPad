@@ -1,0 +1,57 @@
+<!-- layout of whole site -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}My App{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+        .album-cover img {
+            max-width: 100px;
+            height: auto;
+            cursor: move;
+        }
+        .draggable {
+        position: absolute;
+        cursor: move;
+        border: 1px solid #ccc;
+        padding: 10px;
+        background-color: #f9f9f9;
+    }
+    </style>
+</head>
+<body>
+        <!-- sidebar of playlists -->
+        <div class="sidebar">
+            <h2>Playlists</h2>
+            <ul>
+                {% for playlist in playlists %}
+                    <li><a href="/playlists/{{ playlist.id }}/tracks">{{ playlist.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    <!-- main content area -->
+    <div class="main-content">
+        {% block content %}
+            <p>Welcome</p>
+        {% endblock %}
+    </div>
+
+</body>
+</html>
