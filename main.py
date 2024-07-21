@@ -27,7 +27,7 @@ def index():
 # login route
 @app.route('/login')
 def login():
-    scope = 'user-read-private user-read-email'
+    scope = 'user-read-private user-read-email user-modify-playback-state playlist-read-private playlist-read-collaborative'
 
     params = {
         'client_id': CLIENT_ID,
@@ -71,6 +71,7 @@ def callback():
 # route to get playlists
 @app.route('/playlists')
 def get_playlists():
+    print("here")
     global global_playlists_data
 
     if 'access_token' not in session:
@@ -84,6 +85,7 @@ def get_playlists():
     }
 
     response = requests.get(API_BASE_URL + 'me/playlists', headers=headers)
+
     playlists_data = response.json()['items']
 
     global_playlists_data = playlists_data
@@ -111,6 +113,8 @@ def get_tracks(playlist_id):
 
     return render_template('tracks.html', tracks=tracks_data, playlists=global_playlists_data)
 
+
+
 # route to display a song
 @app.route('/tracks/<songs_id>')
 def get_songs(songs_id):
@@ -129,6 +133,7 @@ def get_songs(songs_id):
 
     response = requests.get(API_BASE_URL + f'tracks/{songs_id}', headers=headers)
     songs_data = response.json()
+
 
     if songs_data not in global_songs:
         global_songs.append(songs_data)
@@ -157,6 +162,32 @@ def refresh_token():
         session['expires_at'] = datetime.now().timestamp() + new_token_info['expires_in']
         
         return redirect('/playlists')
+    
+
+@app.route('/delete-song/<songs_id>', methods=['DELETE'])
+def delete_song(songs_id):
+    global global_playlists_data
+    global global_songs
+
+    if 'access_token' not in session:
+        return redirect('/login')
+    
+    if datetime.now().timestamp() > session['expires_at']:
+        return redirect('/refresh_token')
+    
+    headers = {
+        'Authorization': f'Bearer {session["access_token"]}'
+    }
+
+    response = requests.get(API_BASE_URL + f'tracks/{songs_id}', headers=headers)
+    songs_data = response.json()
+
+    if songs_data in global_songs:
+        global_songs.remove(songs_data)
+        return jsonify({'message': 'Song deleted successfully'}), 200
+
+    
+    return jsonify({'error': 'Song not found'}), 404
     
 
 

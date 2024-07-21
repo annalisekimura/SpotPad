@@ -11,11 +11,19 @@
             margin: 0;
             padding: 0;
             display: flex;
+            background-color: #4F6949;
         }
         .sidebar {
-            width: 250px;
-            background-color: #f0f0f0;
+            width: 150px;
+            background-color: black;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        h2 {
+            color: white;
         }
         .main-content {
             flex: 1;
@@ -27,23 +35,244 @@
             cursor: move;
         }
         .draggable {
-        position: absolute;
-        cursor: move;
-        border: 1px solid #ccc;
-        padding: 10px;
-        background-color: #f9f9f9;
-    }
+            position: absolute;
+            cursor: move;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .nav {
+            width: calc(100% - 200px); /* Adjust based on sidebar width */
+            height: 50px;
+            position: fixed;
+            top: 1%;
+            right: 0;
+            transform: translateX(0);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            transition: opacity 0.5s;
+            background: linear-gradient(to right, green, black);
+            padding: 10px;
+            border-radius: 10px;
+            border: 3px solid white;
+        }
+        .nav div, button, input{
+            margin: 5px;
+        }
+        .nav:hover{
+            cursor: pointer;
+        }
+        button:hover{
+            cursor: pointer;
+        }
+        .clr{
+            height: 35px;
+            width: 35px;
+            background-color: blue;
+            border-radius: 50%;
+            border: 3px solid white;
+            transition: transform 0.5s;
+        }
+
+        .clr:hover{
+            transform: scale(1.2);
+        }
+        .clr:nth-child(1){
+            background-color: #000;
+        }
+        .clr:nth-child(2){
+            background-color: red;
+        }
+        .clr:nth-child(3){
+            background-color: orange;
+        }
+        .clr:nth-child(4){
+            background-color: blue;
+        
+        }
+        .clr:nth-child(5){
+            background-color: purple;
+        }
+        .clr:nth-child(6){
+            background-color: yellowgreen;
+        }
+        .clr:nth-child(7){
+            background-color: yellow;
+        }
+        .clr:nth-child(8){
+            background-color: #fff;
+        }
+        button{
+            border: none;
+            outline: none;
+            padding: .6cm 1cm;
+            border-radius: 3px;
+            background-color: darkgreen;
+            color: black;
+            border: 3px solid black;
+            font-size: 15px;
+            font-weight: bold;
+            
+        }
+        .save{
+            background-color: darkgreen;
+        }
+        input[type="color"]{
+            width: 60px;
+            height: 40px;
+        }
+        #ageOutputId{
+            color: white;
+            font-weight: bold;
+            font-size: 15pt;
+        }
+        #ageInputId{
+            background: linear-gradient(to right, black, blue);
+            height: 7px;
+            outline: none;
+            cursor: ew-resize;
+            border-radius: 5px;
+            border: 3px solid white;
+            accent-color: white;
+        }
+        .sidebar a {
+            color: white; /* Set link color to white */
+            text-decoration: none; /* Remove underline */
+        }
+
+        .sidebar a:hover {
+            text-decoration: underline; /* Underline on hover (optional) */
+        }
+
+        .sidebar a:visited {
+            color: white; /* Set visited link color to white */
+        }
+
+        .playlist-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .folder, .delete{
+            font-size: 4em;
+        }
+
+
+        .title-track{
+            text-align: center;
+            width: 100px;
+            font-size: 14;
+            color: white;
+        }
+
+        .track-listing {
+            padding: 20px;
+            background-color: rgb(3, 7, 3); /* Light background color */
+        }
+
+        .track-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px; /* Space between track items */
+            padding: 10px;
+            background-color: rgb(36, 34, 34); /* White background color */
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+
+        .track-details {
+            flex: 1; /* Take remaining space */
+        }
+
+        h2#titleTrack {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .track-details li {
+            list-style-type: none;
+        }
+
+        .track-details a {
+            color: #1db954; /* Spotify green color */
+            text-decoration: none;
+        }
+
+        .track-details a:hover {
+            text-decoration: underline;
+        }
+
+        .artist, .album {
+            font-size: 14px;
+            color: #888; /* Light gray color */
+            margin: 0;
+        }
+
+        .album-cover {
+            width: 100px;
+            height: 100px;
+            overflow: hidden;
+            border-radius: 5px;
+            margin-left: 20px; /* Space between details and album cover */
+        }
+
+        .album-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensure image covers the entire space */
+            transition: transform 0.2s ease-in-out; /* Smooth scaling effect on hover */
+        }
+
+        .album-cover img:hover {
+            transform: scale(1.1); /* Scale up image on hover */
+        }
+
+        .context-menu {
+            position: absolute;
+            text-align: center;
+            background: lightgray;
+            border: 1px solid black;
+            top: 0;
+            left: 0;
+        }
+
+        .context-menu button {
+            padding: 0px;
+            margin: 0px;
+            min-width: 150px;
+            list-style: none;
+        }
+
+
+        .context-menu button:hover {
+            background: darkgray;
+        }
+    
     </style>
 </head>
 <body>
         <!-- sidebar of playlists -->
         <div class="sidebar">
             <h2>Playlists</h2>
-            <ul>
+
                 {% for playlist in playlists %}
-                    <li><a href="/playlists/{{ playlist.id }}/tracks">{{ playlist.name }}</a></li>
+                <div class="playlist-item">
+                    <div class="cover-image">
+                        <img src="{{ playlist['images'][0]['url'] }}" alt="Album Cover" width="100px">
+                    </div>
+                    <div class="title-track">
+                        <a href="/playlists/{{ playlist.id }}/tracks">{{ playlist.name }}</a>
+                    </div>
+                </div>
                 {% endfor %}
-            </ul>
+
+                <h2 class="gallery">Gallery</h2>
+                <p class="folder" role="img" aria-label="folder">&#x1F4C1</p>
+
+
         </div>
 
     <!-- main content area -->
