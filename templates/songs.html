@@ -14,12 +14,8 @@
             <button class="deleteImg" data-song-id="{{ loop.index }}" data-song-id2="{{ song['id'] }}">Delete</button>
         </div>
     </div>
-
     {% endfor %}
-
 </div>
-
-
 
 <!-- drawing canvas -->
 
@@ -44,7 +40,6 @@
 
 
 <script>
-    
     // set the initial canvas
     const canvas = document.getElementById("canvas")
     const body = document.querySelector('body');
@@ -52,18 +47,15 @@
     canvas.width = window.innerWidth;
     body.style.backgroundColor = "#4F6949";
     
-
     var theColor = '';
     var lineW = 5;
     let prevX = null;
     let prevY = null;
     let draw = false;
 
-
     //saves last drawn line
     let drawingActions = [];
     let startDraw = [];
-
 
     // sets canvas background color
     var theInput = document.getElementById("favcolor");
@@ -72,7 +64,6 @@
         theColor = theInput.value;
         body.style.backgroundColor = theColor;
     }, false);
-
 
     // sets drawing line width
     const ctx = canvas.getContext("2d")
@@ -325,7 +316,7 @@
                 });
         });
     });
-    
+
 </script>
 
 {% endblock %}

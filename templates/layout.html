@@ -247,6 +247,42 @@
         .context-menu button:hover {
             background: darkgray;
         }
+
+        .first-page {
+            font-size: larger;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Arial Rounded MT Bold', sans-serif;
+        }
+
+        .first-page h1{
+            font-size: 3em;
+            position: relative; /* Ensures z-index works */
+            color: transparent; /* Make text transparent to show only shadows */
+            text-shadow: 
+  
+                2px 2px 0 #da5bf1, /* Orange */
+                6px 6px 0 #e6f147, /* Green */
+                8px 8px 0 #628ed9; /* Blue */
+            
+                animation: rainbow 5s linear infinite; /* Animation to cycle through colors and sparkle */
+        }
+        @keyframes rainbow {
+            0% { text-shadow:
+                    0 0 0 #ff0000,
+                    2px 2px 0 #ff7f00,
+                    4px 4px 0 #ffff00,
+                    6px 6px 0 #00ff00,
+                    8px 8px 0 #0000ff,
+                    10px 10px 0 #4b0082,
+                    12px 12px 0 #9400d3;
+                }
+        }
+
+
     
     </style>
 </head>
@@ -275,7 +311,18 @@
     <!-- main content area -->
     <div class="main-content">
         {% block content %}
-            <p>Welcome</p>
+        
+            <div class="first-page">
+                    
+                    <h1>Welcome To Your Spotify Scrapbook!</h1>
+                    <h1>Click A Song To Start!</h1>
+                    <h1>Happy Scrapping!</h1>
+                    <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjhiZ3BkZmxjaGRtZHdiZzRsaWpyZjRxMTdoY2s5NDE2ZHJkNWJocSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WoKUhdi9wWYFjOEgvf/giphy.gif" alt="Animated GIF">
+                    
+
+            </div>
+
+
         {% endblock %}
     </div>
 
