@@ -15,8 +15,6 @@
         </div>
     </div>
 
-        
-    </div>
     {% endfor %}
 
 </div>
@@ -24,6 +22,7 @@
 
 
 <!-- drawing canvas -->
+
 <canvas id="canvas"></canvas>
 <div class="nav">
     <div class="clr" data-clr="#000"></div>
@@ -44,33 +43,119 @@
 </div>
 
 
-
 <script>
+    
+    // set the initial canvas
+    const canvas = document.getElementById("canvas")
+    const body = document.querySelector('body');
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    body.style.backgroundColor = "#4F6949";
+    
+
+    var theColor = '';
+    var lineW = 5;
+    let prevX = null;
+    let prevY = null;
+    let draw = false;
+
+
+    //saves last drawn line
+    let drawingActions = [];
+    let startDraw = [];
+
+
+    // sets canvas background color
+    var theInput = document.getElementById("favcolor");
+
+    theInput.addEventListener("input", function(){
+        theColor = theInput.value;
+        body.style.backgroundColor = theColor;
+    }, false);
+
+
+    // sets drawing line width
+    const ctx = canvas.getContext("2d")
+    ctx.lineWidth = lineW;
+
+    document.getElementById("ageInputId").oninput = function() {
+        draw = null
+        lineW = document.getElementById("ageInputId").value;
+        document.getElementById("ageOutputId").innerHTML = lineW;
+        ctx.lineWidth = lineW;
+    };
+
+    // sets color
+    let clrs = document.querySelectorAll(".clr")
+    clrs = Array.from(clrs)
+    clrs.forEach(clr => {
+        clr.addEventListener("click", () => {
+            ctx.strokeStyle = clr.dataset.clr
+        })
+    })
+
+    // clear button clears canvas
+    let clearBtn = document.querySelector(".clear")
+    clearBtn.addEventListener("click", () => {
+        startDraw = [];
+        drawingActions = [];
+        saveDrawingActions();
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+    })
+
+    // undo button reverses last draw
+    let undoBtn = document.querySelector(".undo")
+    undoBtn.addEventListener("click", () => {
+        startDrawTop = startDraw.pop();
+        while (drawingActions.length > 0 && drawingActions[drawingActions.length - 1].startX != null && startDrawTop.startX != null && drawingActions[drawingActions.length - 1].startX != startDrawTop.startX && drawingActions[drawingActions.length - 1].startY != startDrawTop.startY) {
+            drawingActions.pop(); // remove the last element from the array
+        }
+        saveDrawingActions();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawingActions.forEach(action => {
+                ctx.strokeStyle = action.savedColor;
+                ctx.beginPath();
+                ctx.moveTo(action.startX, action.startY);
+                ctx.lineTo(action.endX, action.endY);
+                ctx.stroke();
+            });
+        
+    })
+
+    // save drawing
+    let saveBtn = document.querySelector(".save")
+    saveBtn.addEventListener("click", () => {
+        window.print();
+        let data = canvas.toDataURL("imag/png")
+        let a = document.createElement("a")
+        a.href = data
+        a.download = "sketch.png"
+        a.click()
+    })
+
+    // right click menu
     document.onclick = hideMenu;
     document.oncontextmenu = rightClick;
 
     function hideMenu() {
         var menus = document.querySelectorAll('.context-menu');
-            menus.forEach(function(menu) {
-                menu.style.display = 'none';
-            });
+        menus.forEach(function(menu) {
+            menu.style.display = 'none';
+        });
     }
 
-
     function rightClick(e) {
-
         e.preventDefault();
         var menus = document.querySelectorAll('.context-menu');
-            menus.forEach(function(menu) {
-                if (menu.style.display == 'block'){
-                    hideMenu();
-                }
-                else {
-                    menu.style.display = 'block';
+        menus.forEach(function(menu) {
+            if (menu.style.display == 'block'){
+                hideMenu();
+            }
+            else {
+                menu.style.display = 'block';
                     
-                }
-            });
-        
+            }
+        });
     }
 
     // make each song draggable
@@ -122,130 +207,46 @@
         makeDraggable(song);
     });
 
-    const canvas = document.getElementById("canvas")
-    const body = document.querySelector('body');
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
-    
+    // load drawingActions from localStorage
+    function loadDrawingActions() {
+        let savedDrawingActions = localStorage.getItem('drawingActions');
+        if (savedDrawingActions) {
+            drawingActions = JSON.parse(savedDrawingActions);
 
-    var theColor = '';
-    var lineW = 5;
-    let prevX = null;
-    let prevY = null;
-    let draw = false;
-
-
-
-
-    //saves last drawn line
-    let drawingActions = [];
-    let startDraw = [];
-    let index = -1;
-
-body.style.backgroundColor = "#4F6949";
-var theInput = document.getElementById("favcolor");
-
-theInput.addEventListener("input", function(){
-  theColor = theInput.value;
-  body.style.backgroundColor = theColor;
-}, false);
-
-const ctx = canvas.getContext("2d")
-ctx.lineWidth = lineW;
-
-document.getElementById("ageInputId").oninput = function() {
-    draw = null
-    lineW = document.getElementById("ageInputId").value;
-    document.getElementById("ageOutputId").innerHTML = lineW;
-    ctx.lineWidth = lineW;
-};  
-
-let clrs = document.querySelectorAll(".clr")
-clrs = Array.from(clrs)
-clrs.forEach(clr => {
-    clr.addEventListener("click", () => {
-        ctx.strokeStyle = clr.dataset.clr
-    })
-})
-
-let clearBtn = document.querySelector(".clear")
-clearBtn.addEventListener("click", () => {
-    startDraw = [];
-    drawingActions = [];
-    saveDrawingActions();
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-})
-
-let undoBtn = document.querySelector(".undo")
-undoBtn.addEventListener("click", () => {
-    // Redraw all remaining drawing actions
-
-    startDrawTop = startDraw.pop();
-    while (drawingActions.length > 0 && drawingActions[drawingActions.length - 1].startX != null && startDrawTop.startX != null && drawingActions[drawingActions.length - 1].startX != startDrawTop.startX && drawingActions[drawingActions.length - 1].startY != startDrawTop.startY) {
-        drawingActions.pop(); // Remove the last element from the array
+            // redraw all saved drawing actions
+            drawingActions.forEach(action => {
+                ctx.strokeStyle = action.savedColor;
+                ctx.beginPath();
+                ctx.moveTo(action.startX, action.startY);
+                ctx.lineTo(action.endX, action.endY);
+                ctx.stroke();
+            });
+        }
     }
-    saveDrawingActions();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawingActions.forEach(action => {
-            ctx.strokeStyle = action.savedColor;
-            ctx.beginPath();
-            ctx.moveTo(action.startX, action.startY);
-            ctx.lineTo(action.endX, action.endY);
-            ctx.stroke();
-        });
-    
-})
 
+    // load drawing on reload
+    window.addEventListener('load', () => {
+        loadDrawingActions();
+    });
 
-
-let saveBtn = document.querySelector(".save")
-saveBtn.addEventListener("click", () => {
-    window.print();
-    let data = canvas.toDataURL("imag/png")
-    let a = document.createElement("a")
-    a.href = data
-    a.download = "sketch.png"
-    a.click()
-})
-
-window.addEventListener('load', () => {
-    loadDrawingActions();
-});
-
-function saveDrawingActions() {
-    localStorage.setItem('drawingActions', JSON.stringify(drawingActions));
-}
-
-// Load drawingActions from localStorage
-function loadDrawingActions() {
-    let savedDrawingActions = localStorage.getItem('drawingActions');
-    if (savedDrawingActions) {
-        drawingActions = JSON.parse(savedDrawingActions);
-
-        // Redraw all saved drawing actions
-        drawingActions.forEach(action => {
-            ctx.strokeStyle = action.savedColor;
-            ctx.beginPath();
-            ctx.moveTo(action.startX, action.startY);
-            ctx.lineTo(action.endX, action.endY);
-            ctx.stroke();
-        });
+    function saveDrawingActions() {
+        localStorage.setItem('drawingActions', JSON.stringify(drawingActions));
     }
-}
 
-    // Toggle Drawing Functionality
+    
+    // toggle between draw and no-draw
     let toggleBtn = document.querySelector(".toggle-drawing")
-        toggleBtn.addEventListener("click", () => {
-            if (toggleBtn.textContent == "Start Drawing") {
-                toggleBtn.textContent = "Stop Drawing";
-            } else if (toggleBtn.textContent == "Stop Drawing") {
-                toggleBtn.textContent = "Start Drawing";
-                startDraw.pop();
-            }
-        });
+    toggleBtn.addEventListener("click", () => {
+        if (toggleBtn.textContent == "Start Drawing") {
+            toggleBtn.textContent = "Stop Drawing";
+        }
+        else if (toggleBtn.textContent == "Stop Drawing") {
+            toggleBtn.textContent = "Start Drawing";
+            startDraw.pop();
+        }
+    });
 
     window.addEventListener("mousedown", (e) => {
-
         if(toggleBtn.textContent == "Start Drawing") {
             draw = false;
         }
@@ -262,72 +263,69 @@ function loadDrawingActions() {
     })
 
 
+    window.addEventListener("mousemove", (e) => {
+        let canvasRect = canvas.getBoundingClientRect();
+        if(prevX == null || prevY == null || !draw){
+            prevX = e.clientX - canvasRect.left
+            prevY = e.clientY - canvasRect.top
+            return
+        }
 
-window.addEventListener("mousemove", (e) => {
-    let canvasRect = canvas.getBoundingClientRect();
-    if(prevX == null || prevY == null || !draw){
-        prevX = e.clientX - canvasRect.left
-        prevY = e.clientY - canvasRect.top
-        return
-    }
+        let currentX = e.clientX - canvasRect.left
+        let currentY = e.clientY - canvasRect.top
 
-    let currentX = e.clientX - canvasRect.left
-    let currentY = e.clientY - canvasRect.top
+        if (prevX != null && prevY != null) {
+            // save the current action
+            drawingActions.push({ startX: prevX, startY: prevY, endX: currentX, endY:currentY, savedColor: ctx.strokeStyle });
+        }
 
+        saveDrawingActions();
 
-    if (prevX != null && prevY != null) {
-        // Save the current action (start and end coordinates of line segment)
-        drawingActions.push({ startX: prevX, startY: prevY, endX: currentX, endY:currentY, savedColor: ctx.strokeStyle });
-    }
+        ctx.beginPath()
+        ctx.moveTo(prevX, prevY)
+        ctx.lineTo(currentX, currentY)
+        ctx.stroke()
 
-    saveDrawingActions();
+        prevX = currentX
+        prevY = currentY
+    })
 
-    ctx.beginPath()
-    ctx.moveTo(prevX, prevY)
-    ctx.lineTo(currentX, currentY)
-    ctx.stroke()
+    // delete buttons for tracks
+    let deleteBtns = document.querySelectorAll(".deleteImg");
+    deleteBtns.forEach(btn => {
+        btn.addEventListener("click", function() {
+            // loop ID
+            let songId = this.getAttribute("data-song-id");
 
+            // song ID
+            let passSongId = this.getAttribute("data-song-id2");
 
-    prevX = currentX
-    prevY = currentY
-})
+            let songElement = document.getElementById(`song_${songId}`);
+            
+            // remove from DOM
+            songElement.remove();
+            
+            // remove from localStorage (if saved)
+            localStorage.removeItem(`song_${songId}`);
 
-// Add event listener for delete button clicks
-let deleteBtns = document.querySelectorAll(".deleteImg");
-deleteBtns.forEach(btn => {
-    btn.addEventListener("click", function() {
-        let songId = this.getAttribute("data-song-id");
-
-        let passSongId = this.getAttribute("data-song-id2");
-
-        let songElement = document.getElementById(`song_${songId}`);
-        
-        // Remove from DOM
-        songElement.remove();
-        
-        // Remove from localStorage (if saved)
-        localStorage.removeItem(`song_${songId}`);
-
-        fetch(`/delete-song/${passSongId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to delete song');
-                }
-                // Optionally handle success message or further actions
-            })
-            .catch(error => {
-                console.error('Error deleting song:', error);
-                // Optionally handle error
-            });
+            // call delete
+            fetch(`/delete-song/${passSongId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete song');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting song:', error);
+                });
+        });
     });
-});
-
-
+    
 </script>
 
 {% endblock %}
