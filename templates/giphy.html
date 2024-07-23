@@ -14,7 +14,11 @@
 </main>
 <script>
     let APIKEY = "tSniQc7YU8LnbUPtzFatHQPXSM03369c";
-    let savedFigs = [];
+    let savedFigs = JSON.parse(localStorage.getItem('savedFigs'));
+    console.log(savedFigs);
+    if(savedFigs.length <= 0){
+        savedFigs = [];
+    }
     document.addEventListener("DOMContentLoaded", init);
     function init() {
         document.getElementById("btnSearch").addEventListener("click", ev => {
@@ -37,7 +41,9 @@
                 fig.appendChild(img);
                 fig.appendChild(fc);
 
-                savedFigs.push({url: img.src, title: img.alt})
+
+                savedFigs.push({url: img.src, title: img.alt});
+                console.log("this far");
 
                 let out = document.querySelector(".out");
                 out.insertAdjacentElement("afterbegin", fig);

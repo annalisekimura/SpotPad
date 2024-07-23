@@ -27,7 +27,6 @@
 
     <div class="goLow">
         <button class="redirect">Click here to redirect</button>
-        
     </div>
 
 
@@ -232,9 +231,12 @@
     // load drawing on reload
     window.addEventListener('DOMContentLoaded', () => {
         let gifs = JSON.parse(localStorage.getItem("savedFigs"));
+
         if(gifs && gifs.length > 0) {
+
             console.log(gifs);
-        
+            
+
             gifs.forEach(gif => {
                 // Example: Create a figure element for each saved GIF
                 let fig = document.createElement("figure");
@@ -246,9 +248,19 @@
                 fig.appendChild(img);
                 fig.appendChild(fc);
                 console.log(fig);
-
                 let out = document.querySelector(".addGifs");
                 out.insertAdjacentElement("afterbegin", fig);
+
+                img.addEventListener("click", () => {
+                    let indexToRemove = gifs.findIndex(savedGif => savedGif.url === gif.url);
+                    if (indexToRemove !== -1) {
+                        gifs.splice(indexToRemove, 1);
+                        localStorage.setItem("savedFigs", JSON.stringify(gifs));
+                        fig.remove();
+                    }
+
+                });
+
 
             });
         }
