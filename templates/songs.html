@@ -6,16 +6,30 @@
 
 <!-- show each song -->
 
-<div id="songs-container">
-    {% for song in songs %}
-    <div class="draggable" id="song_{{ loop.index }}">
-        <img src="{{ song['album']['images'][0]['url'] }}" alt="Album Cover" width="100px" />
-        <div id="contextMenu_{{ loop.index }}" class="context-menu" style="display:none">
-            <button class="deleteImg" data-song-id="{{ loop.index }}" data-song-id2="{{ song['id'] }}">Delete</button>
+
+    <div id="songs-container">
+        {% for song in songs %}
+        <div class="draggable" id="song_{{ loop.index }}">
+            <img src="{{ song['album']['images'][0]['url'] }}" alt="Album Cover" width="100px" />
+            <div id="contextMenu_{{ loop.index }}" class="context-menu" style="display:none">
+                <button class="deleteImg" data-song-id="{{ loop.index }}" data-song-id2="{{ song['id'] }}">Delete</button>
+            </div>
+
+            
         </div>
+        {% endfor %}
+        
     </div>
-    {% endfor %}
-</div>
+
+    <div class="draggable">
+        <div class="addGifs"></div>
+    </div>
+
+    <div class="goLow">
+        <button class="redirect">Click here to redirect</button>
+        
+    </div>
+
 
 <!-- drawing canvas -->
 
@@ -216,8 +230,34 @@
     }
 
     // load drawing on reload
+    window.addEventListener('DOMContentLoaded', () => {
+        let gifs = JSON.parse(localStorage.getItem("savedFigs"));
+        if(gifs && gifs.length > 0) {
+            console.log(gifs);
+        
+            gifs.forEach(gif => {
+                // Example: Create a figure element for each saved GIF
+                let fig = document.createElement("figure");
+                let img = document.createElement("img");
+                img.src = gif.url; // Assuming each savedFig has a url property
+                img.alt = gif.title; // Assuming each savedFig has a title property
+                let fc = document.createElement("figcaption");
+                fc.textContent = gif.title;
+                fig.appendChild(img);
+                fig.appendChild(fc);
+                console.log(fig);
+
+                let out = document.querySelector(".addGifs");
+                out.insertAdjacentElement("afterbegin", fig);
+
+            });
+        }
+    });
+
+
     window.addEventListener('load', () => {
         loadDrawingActions();
+        
     });
 
     function saveDrawingActions() {
@@ -280,6 +320,13 @@
         prevX = currentX
         prevY = currentY
     })
+
+    let redirectGif = document.querySelector(".redirect");
+    redirectGif.addEventListener("click", () => {
+        console.log("now");
+        window.location.href = "/giphy";
+
+    });
 
     // delete buttons for tracks
     let deleteBtns = document.querySelectorAll(".deleteImg");

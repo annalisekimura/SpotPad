@@ -18,6 +18,7 @@ API_BASE_URL = 'https://api.spotify.com/v1/'
 # global variables to store data
 global_playlists_data = []
 global_songs = []
+global_gifs = []
 
 # home page route
 @app.route('/')
@@ -140,6 +141,15 @@ def get_songs(songs_id):
 
     return render_template('songs.html', songs=global_songs, playlists=global_playlists_data)
 
+@app.route('/songs')
+def goto_songs():
+    global global_playlists_data
+    global global_songs
+
+    return render_template('songs.html', songs=global_songs, playlists=global_playlists_data)
+
+
+    
 
 # route to refresh expired token
 @app.route('/refresh_token')
@@ -189,7 +199,10 @@ def delete_song(songs_id):
     
     return jsonify({'error': 'Song not found'}), 404
     
-
+@app.route('/giphy')
+def giphy():
+    global global_playlists_data
+    return render_template('giphy.html',  playlists=global_playlists_data)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
