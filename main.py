@@ -112,6 +112,7 @@ def get_tracks(playlist_id):
     response = requests.get(API_BASE_URL + f'playlists/{playlist_id}/tracks', headers=headers)
     tracks_data = response.json()['items']
 
+                
     return render_template('tracks.html', tracks=tracks_data, playlists=global_playlists_data)
 
 
@@ -134,6 +135,8 @@ def get_songs(songs_id):
 
     response = requests.get(API_BASE_URL + f'tracks/{songs_id}', headers=headers)
     songs_data = response.json()
+
+    
 
 
     if songs_data not in global_songs:
@@ -198,6 +201,35 @@ def delete_song(songs_id):
 
     
     return jsonify({'error': 'Song not found'}), 404
+
+@app.route('/play-song/<songs_id>/<track_id>', methods=['PUT'])
+def play_song(songs_id, track_id):
+    global global_playlists_data
+    global global_songs
+
+    if 'access_token' not in session:
+        return redirect('/login')
+    
+    if datetime.now().timestamp() > session['expires_at']:
+        return redirect('/refresh_token')
+    
+    headers = {
+        'Authorization': f'Bearer {session["access_token"]}'
+    }
+
+    payload = {
+        'context_uri': f'{songs_id}',
+        'offset': {
+            'uri': f'{track_id}'  # Specify the track URI
+        }
+    }
+
+    
+    response = requests.put(API_BASE_URL + f'me/player/play', json=payload, headers=headers)
+
+
+    return jsonify({'error': 'Song not found'}), 404
+
     
 @app.route('/giphy')
 def giphy():

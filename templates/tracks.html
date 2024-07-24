@@ -16,20 +16,53 @@
             <div class="track-item">
                 <div class="track-details">
                     <h2 id="titleTrack">
-                        <li><a href="{{ url_for('get_songs', songs_id=track['track']['id']) }}">{{ track['track']['name']}}</a></li>
+                        <li><a href="{{ url_for('get_songs', songs_id=track['track']['id']) }}">{{ track['track']['name'] }}</a></li>
                     </h2>
                     <p class="artist">Artist: {{ track['track']['artists'][0]['name'] }}</p>
                     <p class="album">Album: {{ track['track']['album']['name'] }}</p>
                 </div>
             
                 <div class="album-cover">
-                    <img src="{{ track['track']['album']['images'][0]['url'] }}" alt="Album Cover" width="100px">
+                    <img src="{{ track['track']['album']['images'][0]['url'] }}" class="play-song" data-song-id="{{ track['track']['album']['uri'] }}" data-track-id="{{ track['track']['uri'] }}" alt="Album Cover" width="100px">
 
                 </div>
 
             </div>
             {% endfor %}
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const playSongLinks = document.querySelectorAll('.play-song');
+
+            playSongLinks.forEach(img => {
+                img.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const songId = this.getAttribute('data-song-id');
+                    const trackId = this.getAttribute('data-track-id');
+                    playSong(songId, trackId);
+                });
+            });
+
+            function playSong(songId, trackId) {
+                fetch(`/play-song/${songId}/${trackId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                })
+                .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Failed to delete song');
+                            }
+                })
+                .catch(error => {
+                            console.error('Error deleting song:', error);
+                });
+            }
+        });
+
+    </script>
 
     
     
