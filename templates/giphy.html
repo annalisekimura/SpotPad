@@ -1,3 +1,5 @@
+<!-- giphy search page -->
+
 {% extends "layout.html" %}
 
 {% block title %}Songs - My App{% endblock %}
@@ -12,28 +14,31 @@
     </form>
     <div class="out"></div>
 </main>
+
 <script>
+
     let APIKEY = "tSniQc7YU8LnbUPtzFatHQPXSM03369c";
+
+    //get saved gifs
     let savedFigs = JSON.parse(localStorage.getItem('savedFigs'));
     console.log(savedFigs);
     if(!savedFigs) {
         savedFigs = [];
     }
 
-
+    //get gifs from gify api
     document.addEventListener("DOMContentLoaded", init);
     function init() {
         document.getElementById("btnSearch").addEventListener("click", ev => {
             ev.preventDefault();
+
             let url = `https://api.giphy.com/v1/gifs/search?api_key=${APIKEY}&limit=1&q=`;
             let str = document.getElementById("search").value.trim();
             url = url.concat(str);
-            console.log(url);
+
             fetch(url)
              .then(response => response.json())
              .then(content => {
-                console.log(content.data);
-                console.log("META", content.meta);
                 let fig = document.createElement("figure");
                 let img = document.createElement("img");
                 let fc = document.createElement("figcaption");
@@ -41,19 +46,14 @@
                 img.alt = content.data[0].title;
                 fc.textContent = content.data[0].title;
                 fig.appendChild(img);
-                //fig.appendChild(fc);
-                //savedFigs.push({url: img.src, title: img.alt});
                 savedFigs.push({url: img.src});
 
                 let out = document.querySelector(".out");
                 out.insertAdjacentElement("afterbegin", fig);
                 document.querySelector("#search").value = "";
 
-
                 img.addEventListener("click", () => {
-                    
                     localStorage.setItem("savedFigs", JSON.stringify(savedFigs));
-                    
                     window.location.href = "/songs";
                 });
              })
@@ -63,10 +63,6 @@
         });
     }
 
-
-
 </script>
-
-
 
 {% endblock %}

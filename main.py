@@ -4,8 +4,6 @@ import urllib.parse
 from datetime import datetime, timedelta
 from flask import Flask, redirect, request, jsonify, session, render_template
 
-
-
 app = Flask(__name__)
 app.secret_key = '53d355f8-571a-4590-a310-1f9579440851'
 
@@ -25,7 +23,6 @@ global_gifs = []
 # home page route
 @app.route('/')
 def index():
-    # return "Welcome to my Spotify App <a href='/login'>Login with Spotify</a>"
     return render_template('home.html')
 
 # login route
@@ -69,13 +66,9 @@ def callback():
 
         return redirect('/playlists')
 
-
-
-
 # route to get playlists
 @app.route('/playlists')
 def get_playlists():
-    print("here")
     global global_playlists_data
 
     if 'access_token' not in session:
@@ -93,7 +86,6 @@ def get_playlists():
     playlists_data = response.json()['items']
 
     global_playlists_data = playlists_data
-
 
     return render_template('layout.html', playlists=global_playlists_data)
 
@@ -114,11 +106,8 @@ def get_tracks(playlist_id):
 
     response = requests.get(API_BASE_URL + f'playlists/{playlist_id}/tracks', headers=headers)
     tracks_data = response.json()['items']
-
                 
     return render_template('tracks.html', tracks=tracks_data, playlists=global_playlists_data)
-
-
 
 # route to display a song
 @app.route('/tracks/<songs_id>')
@@ -139,23 +128,18 @@ def get_songs(songs_id):
     response = requests.get(API_BASE_URL + f'tracks/{songs_id}', headers=headers)
     songs_data = response.json()
 
-    
-
-
     if songs_data not in global_songs:
         global_songs.append(songs_data)
 
     return render_template('songs.html', songs=global_songs, playlists=global_playlists_data)
 
+# route to display a song
 @app.route('/songs')
 def goto_songs():
     global global_playlists_data
     global global_songs
 
     return render_template('songs.html', songs=global_songs, playlists=global_playlists_data)
-
-
-    
 
 # route to refresh expired token
 @app.route('/refresh_token')
@@ -178,8 +162,8 @@ def refresh_token():
         session['expires_at'] = datetime.now().timestamp() + new_token_info['expires_in']
         
         return redirect('/playlists')
-    
 
+# route to delete a song from array
 @app.route('/delete-song/<songs_id>', methods=['DELETE'])
 def delete_song(songs_id):
     global global_playlists_data
@@ -202,9 +186,9 @@ def delete_song(songs_id):
         global_songs.remove(songs_data)
         return jsonify({'message': 'Song deleted successfully'}), 200
 
-    
     return jsonify({'error': 'Song not found'}), 404
 
+# route to play a song
 @app.route('/play-song/<songs_id>/<track_id>', methods=['PUT'])
 def play_song(songs_id, track_id):
     global global_playlists_data
@@ -223,31 +207,30 @@ def play_song(songs_id, track_id):
     payload = {
         'context_uri': f'{songs_id}',
         'offset': {
-            'uri': f'{track_id}'  # Specify the track URI
+            'uri': f'{track_id}'
         }
     }
-
     
     response = requests.put(API_BASE_URL + f'me/player/play', json=payload, headers=headers)
 
-
     return jsonify({'error': 'Song not found'}), 404
 
-    
+# route to get a gif    
 @app.route('/giphy')
 def giphy():
     global global_playlists_data
     return render_template('giphy.html',  playlists=global_playlists_data)
 
+# route to logout
 @app.route('/logout')
 def logout():
     global global_songs
-    # Clear the session
+
     session.clear()
     global_songs = []
 
-    # Redirect to the home page or login page
     return redirect('/')
 
+# run main
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

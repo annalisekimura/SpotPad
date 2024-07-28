@@ -1,43 +1,36 @@
+<!-- show each song -->
+
 {% extends "layout.html" %}
 
 {% block title %}Songs - My App{% endblock %}
 
 {% block content %}
 
-<!-- show each song -->
-
-
 <div>
     <div id="songs-container">
         {% for song in songs %}
-        <div class="draggable" id="song_{{ loop.index }}">
-            <img src="{{ song['album']['images'][0]['url'] }}" class="play-song" data-song-id="{{ song['album']['uri'] }}" data-track-id="{{ song['uri'] }}" alt="Album Cover" width="100px" />
-            <div id="contextMenu_{{ loop.index }}" class="context-menu" style="display:none">
-                <button class="deleteImg" data-song-id="{{ loop.index }}" data-song-id2="{{ song['id'] }}">Delete</button>
+            <div class="draggable" id="song_{{ loop.index }}">
+                <img src="{{ song['album']['images'][0]['url'] }}" class="play-song" data-song-id="{{ song['album']['uri'] }}" data-track-id="{{ song['uri'] }}" alt="Album Cover" width="100px" />
+                <div id="contextMenu_{{ loop.index }}" class="context-menu" style="display:none">
+                    <button class="deleteImg" data-song-id="{{ loop.index }}" data-song-id2="{{ song['id'] }}">Delete</button>
+                </div> 
             </div>
-
-            
-        </div>
-
         {% endfor %}
-        
     </div>
+
     <div class="gifCC"></div>
-
-
-
 </div>
 
 
-
-
-<!-- drawing canvas -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
+<!-- drawing canvas -->
 
 <canvas id="canvas"></canvas>
+
 <div class="nav">
     <div class="paintbrush" id="paintbrush" role="img" aria-label="Lower Left Paintbrush">&#x1F58C</div>
+
     <div class="color-options" id="colorOptions">
         <div class="clr" data-clr="#000"></div>
         <div class="clr" data-clr="red"></div>
@@ -48,26 +41,28 @@
         <div class="clr" data-clr="yellow"></div>
         <div class="clr" data-clr="#fff"></div>
     </div>
+
     <button class="undo" role="img" aria-label="Anticlockwise Open Circle Arrow">&#x21BA</button>
     <button class="clear">Clear</button>
     <button class="save" role="img" aria-label="Downwords Arrow to Bar">&#x2913</button>
+
     <input type="color" value="#4F6949" id="favcolor">
     <input type="range" name="ageInputName" id="ageInputId" value="5" min="1" max="10" oninput="ageOutputId.value = ageInputId.value">
+
     <output id="ageOutputId"></output>
+
     <button class="toggle-drawing">Start Drawing</button> <!-- Toggle button added -->
     <button class="redirect">Search for a GIF</button>
     <button class="logout-button">Logout</button>
-
 </div>
 
 
 <script>
-
+    // logout function
     document.querySelector('.logout-button').addEventListener('click', () => {
         localStorage.clear();
         window.location.href = "/logout";
     });
-
 
     // set the initial canvas
     const canvas = document.getElementById("canvas")
@@ -82,13 +77,12 @@
     let prevY = null;
     let draw = false;
 
-    //saves last drawn line
+    // saves last drawn line
     let drawingActions = [];
     let startDraw = [];
 
     // sets canvas background color
     var theInput = document.getElementById("favcolor");
-
 
     theInput.addEventListener("input", function(){
         theColor = theInput.value;
@@ -156,8 +150,6 @@
             a.click();
         });
     });
-
-    
 
     // right click menu
     document.onclick = hideMenu;
@@ -229,19 +221,14 @@
 
     // call the drag function
     var songs = document.querySelectorAll('.draggable');
-    console.log(songs);
     songs.forEach(function(song) {
         makeDraggable(song);
     });
 
-
-    
-
-
-
     // load drawingActions from localStorage
     function loadDrawingActions() {
         let savedDrawingActions = localStorage.getItem('drawingActions');
+
         if (savedDrawingActions) {
             drawingActions = JSON.parse(savedDrawingActions);
 
@@ -254,129 +241,110 @@
                 ctx.stroke();
             });
         }
+
         let savedBackgroundColor = localStorage.getItem('back_color');
+
         if(savedBackgroundColor) {
             body.style.backgroundColor = savedBackgroundColor;
 
         }
     }
 
-    // load drawing on reload
     window.addEventListener('DOMContentLoaded', () => {
         let gifs = JSON.parse(localStorage.getItem("savedFigs"));
         let out = document.querySelector(".gifCC");
+
+        // add the gifs to the container
         if(gifs && gifs.length > 0) {
-
-            console.log(gifs);
-            
-
             gifs.forEach((gif, index) => {
                 let gifContainer = document.createElement("div");
                 gifContainer.classList.add("gif-container");
 
-
-                // Example: Create a figure element for each saved GIF
                 let fig = document.createElement("figure");
                 let img = document.createElement("img");
-                img.src = gif.url; // Assuming each savedFig has a url property
+                img.src = gif.url;
                 let fc = document.createElement("figcaption");
                 fig.appendChild(img);
-
-                //gifContainer.appendChild(fig);
-
-
-                //let out = document.querySelector(".gif-container-${index}");
-
-                //out.appendChild(gifContainer);
                 gifContainer.appendChild(fig);
-
-
-
                 out.appendChild(gifContainer);
-
 
                 img.addEventListener("click", () => {
                     let indexToRemove = gifs.findIndex(savedGif => savedGif.url === gif.url);
+
                     if (indexToRemove !== -1) {
                         gifs.splice(indexToRemove, 1);
                         localStorage.setItem("savedFigs", JSON.stringify(gifs));
                         fig.remove();
                     }
                 });
-
-
             });
-            console.log(out);
         }
 
+        // make each gif draggable
         var gifss = document.querySelectorAll('.gif-container');
-            console.log(gifss);
-            gifss.forEach(function(gifs) {
-                makeDraggable(gifs);
+
+        gifss.forEach(function(gifs) {
+            makeDraggable(gifs);
+        });
+
+        // play song on click
+        const playSongLinks = document.querySelectorAll('.play-song');
+
+        playSongLinks.forEach(img => {
+            img.addEventListener('click', function(event) {
+                event.preventDefault();
+                const songId = this.getAttribute('data-song-id');
+                const trackId = this.getAttribute('data-track-id');
+                playSong(songId, trackId);
             });
+        });
 
-
-            const playSongLinks = document.querySelectorAll('.play-song');
-
-            playSongLinks.forEach(img => {
-                img.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    const songId = this.getAttribute('data-song-id');
-                    const trackId = this.getAttribute('data-track-id');
-                    playSong(songId, trackId);
-                });
+        // play song function from main.py
+        function playSong(songId, trackId) {
+            fetch(`/play-song/${songId}/${trackId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to delete song');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting song:', error);
             });
+        }
 
-            function playSong(songId, trackId) {
-                fetch(`/play-song/${songId}/${trackId}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                })
-                .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Failed to delete song');
-                            }
-                })
-                .catch(error => {
-                            console.error('Error deleting song:', error);
-                });
+        // paintbrush functions
+        const paintbrush = document.getElementById('paintbrush');
+        const colorOptions = document.getElementById('colorOptions');
+
+        // toggle the visibility of the color options
+        paintbrush.addEventListener('click', () => {
+            if (colorOptions.style.display === 'none' || colorOptions.style.display === '') {
+                colorOptions.style.display = 'block';
+            } else {
+                colorOptions.style.display = 'none';
             }
+        });
 
-            const paintbrush = document.getElementById('paintbrush');
-            const colorOptions = document.getElementById('colorOptions');
-
-            paintbrush.addEventListener('click', () => {
-                // Toggle the visibility of the color options
-                if (colorOptions.style.display === 'none' || colorOptions.style.display === '') {
-                    colorOptions.style.display = 'block';
-                } else {
-                    colorOptions.style.display = 'none';
-                }
-            });
-
-            // Optionally hide color options when clicking outside
-            document.addEventListener('click', (event) => {
-                if (!paintbrush.contains(event.target) && !colorOptions.contains(event.target)) {
-                    colorOptions.style.display = 'none';
-                }
-            });
-
-
+        document.addEventListener('click', (event) => {
+            if (!paintbrush.contains(event.target) && !colorOptions.contains(event.target)) {
+                colorOptions.style.display = 'none';
+            }
+        });
     });
-
 
     window.addEventListener('load', () => {
         loadDrawingActions();
-        
     });
 
     function saveDrawingActions() {
         localStorage.setItem('drawingActions', JSON.stringify(drawingActions));
     }
 
-    
     // toggle between draw and no-draw
     let toggleBtn = document.querySelector(".toggle-drawing")
     toggleBtn.addEventListener("click", () => {
@@ -433,11 +401,10 @@
         prevY = currentY
     })
 
+    // go to giphy.html page
     let redirectGif = document.querySelector(".redirect");
     redirectGif.addEventListener("click", () => {
-        console.log("now");
         window.location.href = "/giphy";
-
     });
 
     // delete buttons for tracks
@@ -460,19 +427,19 @@
 
             // call delete
             fetch(`/delete-song/${passSongId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to delete song');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error deleting song:', error);
-                });
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to delete song');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting song:', error);
+            });
         });
     });
 

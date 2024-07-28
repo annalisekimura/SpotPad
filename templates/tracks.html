@@ -1,18 +1,16 @@
 <!-- tracks.html -->
+
 {% extends "layout.html" %}
 
 {% block title %}Tracks - My App{% endblock %}
-
 
 {% block content %}
 
     <h1>Tracks</h1>
 
-
     <div class="track-listing">
-
-                <!-- show each track in album with album name and artist -->
-            {% for track in tracks %}
+        <!-- show each track in album with album name and artist -->
+        {% for track in tracks %}
             <div class="track-item">
                 <div class="track-details">
                     <h2 id="titleTrack">
@@ -24,15 +22,15 @@
             
                 <div class="album-cover">
                     <img src="{{ track['track']['album']['images'][0]['url'] }}" class="play-song" data-song-id="{{ track['track']['album']['uri'] }}" data-track-id="{{ track['track']['uri'] }}" alt="Album Cover" width="100px">
-
                 </div>
-
             </div>
-            {% endfor %}
+        {% endfor %}
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+            // play songs on click
             const playSongLinks = document.querySelectorAll('.play-song');
 
             playSongLinks.forEach(img => {
@@ -46,24 +44,21 @@
 
             function playSong(songId, trackId) {
                 fetch(`/play-song/${songId}/${trackId}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                 })
                 .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Failed to delete song');
-                            }
+                    if (!response.ok) {
+                        throw new Error('Failed to delete song');
+                    }
                 })
                 .catch(error => {
-                            console.error('Error deleting song:', error);
+                    console.error('Error deleting song:', error);
                 });
             }
         });
-
     </script>
 
-    
-    
 {% endblock %}
