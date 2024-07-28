@@ -25,7 +25,8 @@ global_gifs = []
 # home page route
 @app.route('/')
 def index():
-    return "Welcome to my Spotify App <a href='/login'>Login with Spotify</a>"
+    # return "Welcome to my Spotify App <a href='/login'>Login with Spotify</a>"
+    return render_template('home.html')
 
 # login route
 @app.route('/login')
