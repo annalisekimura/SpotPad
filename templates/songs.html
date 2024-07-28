@@ -24,11 +24,10 @@
     </div>
     <div class="gifCC"></div>
 
+
+
 </div>
 
-    <div class="goLow">
-        <button class="redirect">Search for a GIF</button>
-    </div>
 
 
 
@@ -38,25 +37,38 @@
 
 <canvas id="canvas"></canvas>
 <div class="nav">
-    <div class="clr" data-clr="#000"></div>
-    <div class="clr" data-clr="red"></div>
-    <div class="clr" data-clr="orange"></div>
-    <div class="clr" data-clr="blue"></div>
-    <div class="clr" data-clr="purple"></div>
-    <div class="clr" data-clr="yellowgreen"></div>
-    <div class="clr" data-clr="yellow"></div>
-    <div class="clr" data-clr="#fff"></div>
-    <button class="undo" role="img" aria-label="Anticlockwise Open Circle Arrow">&#x21BA</button>`
+    <div class="paintbrush" id="paintbrush" role="img" aria-label="Lower Left Paintbrush">&#x1F58C</div>
+    <div class="color-options" id="colorOptions">
+        <div class="clr" data-clr="#000"></div>
+        <div class="clr" data-clr="red"></div>
+        <div class="clr" data-clr="orange"></div>
+        <div class="clr" data-clr="blue"></div>
+        <div class="clr" data-clr="purple"></div>
+        <div class="clr" data-clr="yellowgreen"></div>
+        <div class="clr" data-clr="yellow"></div>
+        <div class="clr" data-clr="#fff"></div>
+    </div>
+    <button class="undo" role="img" aria-label="Anticlockwise Open Circle Arrow">&#x21BA</button>
     <button class="clear">Clear</button>
     <button class="save" role="img" aria-label="Downwords Arrow to Bar">&#x2913</button>
     <input type="color" value="#4F6949" id="favcolor">
     <input type="range" name="ageInputName" id="ageInputId" value="5" min="1" max="10" oninput="ageOutputId.value = ageInputId.value">
     <output id="ageOutputId"></output>
     <button class="toggle-drawing">Start Drawing</button> <!-- Toggle button added -->
+    <button class="redirect">Search for a GIF</button>
+    <button class="logout-button">Logout</button>
+
 </div>
 
 
 <script>
+
+    document.querySelector('.logout-button').addEventListener('click', () => {
+        localStorage.clear();
+        window.location.href = "/logout";
+    });
+
+
     // set the initial canvas
     const canvas = document.getElementById("canvas")
     const body = document.querySelector('body');
@@ -81,6 +93,7 @@
     theInput.addEventListener("input", function(){
         theColor = theInput.value;
         body.style.backgroundColor = theColor;
+        localStorage.setItem("back_color", theColor);
     }, false);
 
     // sets drawing line width
@@ -241,6 +254,11 @@
                 ctx.stroke();
             });
         }
+        let savedBackgroundColor = localStorage.getItem('back_color');
+        if(savedBackgroundColor) {
+            body.style.backgroundColor = savedBackgroundColor;
+
+        }
     }
 
     // load drawing on reload
@@ -325,6 +343,25 @@
                             console.error('Error deleting song:', error);
                 });
             }
+
+            const paintbrush = document.getElementById('paintbrush');
+            const colorOptions = document.getElementById('colorOptions');
+
+            paintbrush.addEventListener('click', () => {
+                // Toggle the visibility of the color options
+                if (colorOptions.style.display === 'none' || colorOptions.style.display === '') {
+                    colorOptions.style.display = 'block';
+                } else {
+                    colorOptions.style.display = 'none';
+                }
+            });
+
+            // Optionally hide color options when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!paintbrush.contains(event.target) && !colorOptions.contains(event.target)) {
+                    colorOptions.style.display = 'none';
+                }
+            });
 
 
     });

@@ -238,5 +238,15 @@ def giphy():
     global global_playlists_data
     return render_template('giphy.html',  playlists=global_playlists_data)
 
+@app.route('/logout')
+def logout():
+    global global_songs
+    # Clear the session
+    session.clear()
+    global_songs = []
+
+    # Redirect to the home page or login page
+    return redirect('/')
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
