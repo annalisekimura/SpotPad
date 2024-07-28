@@ -7,6 +7,7 @@
 <!-- show each song -->
 
 
+<div>
     <div id="songs-container">
         {% for song in songs %}
         <div class="draggable" id="song_{{ loop.index }}">
@@ -21,17 +22,19 @@
         {% endfor %}
         
     </div>
+    <div class="gifCC"></div>
 
-    <div class="draggableGif">
-        <div class="addGifs"></div>
-    </div>
+</div>
 
     <div class="goLow">
         <button class="redirect">Search for a GIF</button>
     </div>
 
 
+
 <!-- drawing canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 
 <canvas id="canvas"></canvas>
 <div class="nav">
@@ -43,9 +46,9 @@
     <div class="clr" data-clr="yellowgreen"></div>
     <div class="clr" data-clr="yellow"></div>
     <div class="clr" data-clr="#fff"></div>
-    <button class="undo">Undo</button>`
+    <button class="undo" role="img" aria-label="Anticlockwise Open Circle Arrow">&#x21BA</button>`
     <button class="clear">Clear</button>
-    <button class="save">Save</button>
+    <button class="save" role="img" aria-label="Downwords Arrow to Bar">&#x2913</button>
     <input type="color" value="#4F6949" id="favcolor">
     <input type="range" name="ageInputName" id="ageInputId" value="5" min="1" max="10" oninput="ageOutputId.value = ageInputId.value">
     <output id="ageOutputId"></output>
@@ -73,6 +76,7 @@
 
     // sets canvas background color
     var theInput = document.getElementById("favcolor");
+
 
     theInput.addEventListener("input", function(){
         theColor = theInput.value;
@@ -130,13 +134,17 @@
     // save drawing
     let saveBtn = document.querySelector(".save")
     saveBtn.addEventListener("click", () => {
-        window.print();
-        let data = canvas.toDataURL("imag/png")
-        let a = document.createElement("a")
-        a.href = data
-        a.download = "sketch.png"
-        a.click()
-    })
+
+        html2canvas(document.body, {useCORS: true}).then((canvas) => {
+            const base64image = canvas.toDataURL("image/png");
+            const a = document.createElement("a");
+            a.href = base64image;
+            a.download = "sketch.png";
+            a.click();
+        });
+    });
+
+    
 
     // right click menu
     document.onclick = hideMenu;
@@ -208,12 +216,14 @@
 
     // call the drag function
     var songs = document.querySelectorAll('.draggable');
+    console.log(songs);
     songs.forEach(function(song) {
         makeDraggable(song);
     });
 
-    var dragGif = document.querySelector('.draggableGif');
-    makeDraggable(dragGif);
+
+    
+
 
 
     // load drawingActions from localStorage
@@ -236,25 +246,36 @@
     // load drawing on reload
     window.addEventListener('DOMContentLoaded', () => {
         let gifs = JSON.parse(localStorage.getItem("savedFigs"));
-
+        let out = document.querySelector(".gifCC");
         if(gifs && gifs.length > 0) {
 
             console.log(gifs);
             
 
-            gifs.forEach(gif => {
+            gifs.forEach((gif, index) => {
+                let gifContainer = document.createElement("div");
+                gifContainer.classList.add("gif-container");
+
+
                 // Example: Create a figure element for each saved GIF
                 let fig = document.createElement("figure");
                 let img = document.createElement("img");
                 img.src = gif.url; // Assuming each savedFig has a url property
-                img.alt = gif.title; // Assuming each savedFig has a title property
                 let fc = document.createElement("figcaption");
-                fc.textContent = gif.title;
                 fig.appendChild(img);
-                fig.appendChild(fc);
-                console.log(fig);
-                let out = document.querySelector(".addGifs");
-                out.insertAdjacentElement("afterbegin", fig);
+
+                //gifContainer.appendChild(fig);
+
+
+                //let out = document.querySelector(".gif-container-${index}");
+
+                //out.appendChild(gifContainer);
+                gifContainer.appendChild(fig);
+
+
+
+                out.appendChild(gifContainer);
+
 
                 img.addEventListener("click", () => {
                     let indexToRemove = gifs.findIndex(savedGif => savedGif.url === gif.url);
@@ -267,7 +288,14 @@
 
 
             });
+            console.log(out);
         }
+
+        var gifss = document.querySelectorAll('.gif-container');
+            console.log(gifss);
+            gifss.forEach(function(gifs) {
+                makeDraggable(gifs);
+            });
 
 
             const playSongLinks = document.querySelectorAll('.play-song');

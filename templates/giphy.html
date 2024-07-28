@@ -39,11 +39,9 @@
                 img.alt = content.data[0].title;
                 fc.textContent = content.data[0].title;
                 fig.appendChild(img);
-                fig.appendChild(fc);
-
-
-                savedFigs.push({url: img.src, title: img.alt});
-                console.log("this far");
+                //fig.appendChild(fc);
+                //savedFigs.push({url: img.src, title: img.alt});
+                savedFigs.push({url: img.src});
 
                 let out = document.querySelector(".out");
                 out.insertAdjacentElement("afterbegin", fig);

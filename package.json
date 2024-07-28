@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "canvas-confetti": "^1.9.3",
+    "html2canvas": "^1.4.1",
     "jsonify": "^0.0.1",
     "requests": "^0.3.0"
   }

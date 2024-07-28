@@ -42,7 +42,7 @@
             background-color: #f9f9f9;
         }
 
-        .draggableGif {
+        .gif-container {
             position: absolute;
             cursor: move;
             background-color: #f9f9f9;
@@ -110,7 +110,10 @@
         .clr:nth-child(8){
             background-color: #fff;
         }
-        button{
+        button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             border: none;
             outline: none;
             padding: .6cm 1cm;
@@ -120,8 +123,11 @@
             border: 3px solid black;
             font-size: 15px;
             font-weight: bold;
+            height: 65px;
             
         }
+
+
         .save{
             background-color: darkgreen;
         }
@@ -160,10 +166,23 @@
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            justify-content: center;
+            padding-left: 25px;
+
+        }
+        .cover-image {
+            width:100%;
         }
 
-        .folder, .delete{
+        .folder {
             font-size: 4em;
+            background-color: black;
+        }
+
+
+        .undo, .save {
+            font-size: xx-large;
+            justify-content: center;
         }
 
 
@@ -291,13 +310,22 @@
             padding-top: 100px;
         }
 
-        .addGifs img {
-            max-width: 100%; /* Ensure the image does not exceed the container's width */
+        .gifCC img {
+            width: 100%; /* Ensure the image does not exceed the container's width */
             height: auto; /* Maintain aspect ratio */
             display: block; /* Ensure the image behaves like a block element */
-            margin: 0 auto; /* Center the image horizontally */
-            max-height: 100px; /* Limit the maximum height of the image */
+            max-height: 100px;
         }
+
+        #fileInput {
+            display: none;
+        }
+
+        .playlists-title, .gallery{
+            padding-left: 28px;
+            justify-content: center;
+        }
+
 
 
     
@@ -306,7 +334,7 @@
 <body>
         <!-- sidebar of playlists -->
         <div class="sidebar">
-            <h2>Playlists</h2>
+            <h2 class="playlists-title">Playlists</h2>
 
                 {% for playlist in playlists %}
                 <div class="playlist-item">
@@ -320,10 +348,24 @@
                 {% endfor %}
 
                 <h2 class="gallery">Gallery</h2>
-                <p class="folder" role="img" aria-label="folder">&#x1F4C1</p>
+                <button class="folder" role="img" aria-label="folder">&#x1F4C1</button>
 
 
         </div>
+
+        <input type="file" id="fileInput" multiple>
+
+
+            <script>
+                let fileBtn = document.querySelector(".folder")
+                fileBtn.addEventListener("click", () => {
+                    openFileDialog();
+                })
+                
+                function openFileDialog() {
+                    document.getElementById('fileInput').click();
+                }
+            </script>
 
     <!-- main content area -->
     <div class="main-content">
