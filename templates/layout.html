@@ -107,6 +107,12 @@
                 height: 40px;
             }
 
+            .play-song {
+                width: 100px; /* Ensure images are styled correctly */
+                height: auto; /* Maintain aspect ratio */
+                object-fit: cover; /* Crop or fit the image properly */
+            }
+
             #ageOutputId{
                 color: white;
                 font-weight: bold;
@@ -148,9 +154,50 @@
                 width:100%;
             }
 
+            .container {
+                position: relative; /* Ensure that children can be positioned absolutely relative to this container */
+            }
+
             .folder {
                 font-size: 4em;
                 background-color: black;
+                color: white; /* To make the folder icon visible on black background */
+                padding: 10px; /* Optional, for better visual spacing */
+                display: inline-block; /* Ensure it only takes up as much width as necessary */
+            }
+
+            .saved-states {
+                display: none; /* Hide by default */
+                position: absolute; /* Position relative to the .container */
+                background-color: white;
+                padding: 10px;
+                border-radius: 5px;
+                bottom: 0; /* Aligns with the bottom of the .container */
+                left: 0; /* Aligns with the left of the .container */
+                width: 200px; /* Optional, adjust width as needed */
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional, adds shadow for better visibility */
+                z-index: 1000; /* Ensure it appears above other elements */
+            }
+
+            .saved-states ul {
+                list-style-type: none; /* Remove bullet points */
+                padding: 0; /* Remove default padding */
+                margin: 0; /* Remove default margin */
+            }
+
+            .saved-states li {
+                padding: 8px; /* Add padding around list items */
+                border-bottom: 1px solid #ddd; /* Optional, add a border between items */
+            }
+
+            .saved-states li:last-child {
+                border-bottom: none; /* Remove border from the last item */
+            }
+
+            .saved-states li:hover {
+                cursor: pointer;
+                text-decoration: underline; /* Optional, adds underline on hover */
+                background-color: #f0f0f0; /* Optional, changes background on hover */
             }
 
             .undo, .save, .paintbrush {
@@ -297,7 +344,7 @@
                 cursor: pointer;
             }
 
-            .color-options {
+            .color-options{
                 display: none; /* hide by default */
                 position: absolute;
                 top: 60px;
@@ -306,6 +353,8 @@
                 padding: 10px;
                 border-radius: 5px;
             }
+
+            
 
             .color-options .clr {
                 display: inline-block;
@@ -348,24 +397,17 @@
                 </div>
             </div>
             {% endfor %}
+            <div class="container">
 
-            <h2 class="gallery">Gallery</h2>
-            <button class="folder" role="img" aria-label="folder">&#x1F4C1</button>
+                <h2 class="gallery">Gallery</h2>
+                <button class="folder" role="img" aria-label="folder">&#x1F4C1</button>
+                <div class="saved-states">
+                    <div class="saved-states-list"></div>
+                </div>
+            </div>
         </div>
 
         <input type="file" id="fileInput" multiple>
-
-        <script>
-            let fileBtn = document.querySelector(".folder")
-
-            fileBtn.addEventListener("click", () => {
-                openFileDialog();
-            })
-            
-            function openFileDialog() {
-                document.getElementById('fileInput').click();
-            }
-        </script>
 
         <!-- main content area -->
         <div class="main-content">

@@ -19,6 +19,7 @@
     </div>
 
     <div class="gifCC"></div>
+
 </div>
 
 
@@ -141,14 +142,11 @@
     // save drawing
     let saveBtn = document.querySelector(".save")
     saveBtn.addEventListener("click", () => {
-
-        html2canvas(document.body, {useCORS: true}).then((canvas) => {
-            const base64image = canvas.toDataURL("image/png");
-            const a = document.createElement("a");
-            a.href = base64image;
-            a.download = "sketch.png";
-            a.click();
-        });
+        let title = prompt("Enter a title for your drawing:");
+        
+        if (title) {
+            saveCurrentState(title);
+        }
     });
 
     // right click menu
@@ -250,6 +248,164 @@
         }
     }
 
+    // save current state screenshot
+    function saveCurrentState(title) {
+        // save drawing canvas
+        const drawingData = canvas.toDataURL("image/png");
+
+        // save positions and other data of songs
+        const songs = document.querySelectorAll('.draggable');
+
+        const songData = Array.from(songs).map(song => ({
+            id: song.id,
+            song_id: song.querySelector('img').getAttribute('data-song-id'),
+            track_id: song.querySelector('img').getAttribute('data-track-id'),
+            left: song.offsetLeft,
+            top: song.offsetTop,
+            imgSrc: song.querySelector('img').src
+        }));
+
+        console.log("song data: ", songData);
+    
+
+        // save positions and other data of GIFs
+        const gifs = document.querySelectorAll('.gif-container');
+        const gifData = Array.from(gifs).map(gif => ({
+            id: gif.id,
+            left: gif.offsetLeft,
+            top: gif.offsetTop
+        }));
+        
+        console.log("gif data: ", gifData);
+
+        // get all saved states
+        let storedStates;
+
+        try {
+            const savedStatesJson = localStorage.getItem('savedStates');
+            storedStates = savedStatesJson ? JSON.parse(savedStatesJson) : [];
+        } catch (e) {
+            console.error('Error parsing saved states from localStorage:', e);
+            storedStates = [];
+        }
+
+        // create a new state entry
+        const newState = {
+            title: title,
+            timestamp: new Date().toISOString(),
+            drawingData: drawingData,
+            songData: songData,
+            gifData: gifData
+        }
+
+        // add new state to stored states
+        storedStates.push(newState);
+
+        // save updated states to local storage
+        localStorage.setItem('savedStates', JSON.stringify(storedStates));
+
+        alert('current state saved');
+    
+    }
+
+    // load and render saved state
+    function loadState(state) {
+        localStorage.setItem('recentState', JSON.stringify(state));
+        // clear current canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // draw saved canvas image
+        const img = new Image();
+        img.src = state.drawingData;
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0);
+        };
+
+        const songsContainer = document.getElementById('songs-container');
+        songsContainer.innerHTML = '';
+
+        // reposition songs
+        console.log(state);
+        state.songData.forEach(data => {
+            const songElement = document.createElement('div');
+            songElement.classList.add('draggable');
+            songElement.id = data.id;
+
+            const img = document.createElement('img');
+            img.src = data.imgSrc;
+            img.classList.add('play-song');
+            img.setAttribute('data-song-id', data.song_id);
+            img.setAttribute('data-track-id', data.track_id);
+
+
+
+            img.addEventListener('click', function(event) {
+                event.preventDefault();
+                playSong(data.song_id, data.track_id);
+            });
+
+            function playSong(songId, trackId) {
+                fetch(`/play-song/${songId}/${trackId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete song');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting song:', error);
+                });
+            }
+
+            const contextMenu = document.createElement('div');
+            contextMenu.classList.add('context-menu');
+            contextMenu.style.display = 'none';
+
+            songElement.appendChild(img);
+            songElement.appendChild(contextMenu);
+
+            songsContainer.appendChild(songElement);
+
+            makeDraggable(songElement);
+            songElement.style.left = data.left;
+            songElement.style.top = data.top;
+
+
+        });
+
+        // reposition gifs
+        state.gifData.forEach(data => {
+            const gifElement = document.getElementById(data.id);
+            if(gifElement) {
+                gifElement.style.left = data.left;
+                gifElement.style.top = data.top;
+            }
+        });
+    }
+
+    // load states from localStorage
+    function loadSavedStates() {
+        const savedStates = JSON.parse(localStorage.getItem('savedStates')) || [];
+
+        //create a UI to list saved states
+        const listContainer = document.querySelector('.saved-states-list');
+        listContainer.innerHTML = '';
+
+        savedStates.forEach((state, index) => {
+            console.log("state: ", state);
+            const listItem = document.createElement('li');
+            listItem.textContent = state.title;
+            listItem.addEventListener('click', () => {
+                loadState(state);
+            });
+            listContainer.appendChild(listItem);
+        })
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
         let gifs = JSON.parse(localStorage.getItem("savedFigs"));
         let out = document.querySelector(".gifCC");
@@ -309,11 +465,11 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Failed to delete song');
+                    throw new Error('Failed to play song');
                 }
             })
             .catch(error => {
-                console.error('Error deleting song:', error);
+                console.error('Error playing song:', error);
             });
         }
 
@@ -335,7 +491,12 @@
                 colorOptions.style.display = 'none';
             }
         });
+
+        // populate list of saved states
+        loadSavedStates();
+
     });
+
 
     window.addEventListener('load', () => {
         loadDrawingActions();
@@ -443,6 +604,26 @@
         });
     });
 
+</script>
+<script>
+
+        const fileBtn = document.querySelector(".folder");
+        const states = document.querySelector(".saved-states");
+
+        // toggle the visibility of the color options
+        fileBtn.addEventListener('click', () => {
+            if (states.style.display === 'none' || states.style.display === '') {
+                states.style.display = 'block';
+            } else {
+                states.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!fileBtn.contains(event.target) && !states.contains(event.target)) {
+                states.style.display = 'none';
+            }
+        });
 </script>
 
 {% endblock %}
