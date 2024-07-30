@@ -18,7 +18,7 @@
         {% endfor %}
     </div>
 
-    <div class="gifCC"></div>
+    <div id="gifCC" class="gifCC"></div>
 
 </div>
 
@@ -186,6 +186,8 @@
             element.style.left = positions[1] + 'px';
         }
 
+        console.log("first element top: ", element.style.top);
+
         element.onmousedown = dragMouseDown;
 
         function dragMouseDown(e) {
@@ -209,6 +211,50 @@
 
             // save the position in local storage
             localStorage.setItem('song_' + element.id, `${element.offsetTop},${element.offsetLeft}`);
+        }
+
+        function closeDragElement() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
+
+    function makeDraggable2(element) {
+        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+        // keep position on reload
+        var savedPosition = localStorage.getItem('gif_' + element.id);
+        if (savedPosition) {
+            var positions = savedPosition.split(',');
+            element.style.top = positions[0] + 'px';
+            element.style.left = positions[1] + 'px';
+        }
+
+        console.log("first element top: ", element.style.top);
+
+        element.onmousedown = dragMouseDown;
+
+        function dragMouseDown(e) {
+            e = e || window.event;
+            e.preventDefault();
+            pos3 = e.clientX
+            pos4 = e.clientY
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            e = e || window.event;
+            e.preventDefault();
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            element.style.top = (element.offsetTop - pos2) + "px";
+            element.style.left = (element.offsetLeft - pos1) + "px";
+
+            // save the position in local storage
+            localStorage.setItem('gif_' + element.id, `${element.offsetTop},${element.offsetLeft}`);
         }
 
         function closeDragElement() {
@@ -256,27 +302,33 @@
         // save positions and other data of songs
         const songs = document.querySelectorAll('.draggable');
 
-        const songData = Array.from(songs).map(song => ({
-            id: song.id,
-            song_id: song.querySelector('img').getAttribute('data-song-id'),
-            track_id: song.querySelector('img').getAttribute('data-track-id'),
-            left: song.offsetLeft,
-            top: song.offsetTop,
-            imgSrc: song.querySelector('img').src
-        }));
 
-        console.log("song data: ", songData);
+            const songData = Array.from(songs).map(song => ({
+                id: song.id,
+                song_id: song.querySelector('img').getAttribute('data-song-id'),
+                track_id: song.querySelector('img').getAttribute('data-track-id'),
+                left: song.offsetLeft,
+                top: song.offsetTop,
+                imgSrc: song.querySelector('img').src
+            }));
+
+            console.log("song data: ", songData);
+
     
 
         // save positions and other data of GIFs
         const gifs = document.querySelectorAll('.gif-container');
-        const gifData = Array.from(gifs).map(gif => ({
-            id: gif.id,
-            left: gif.offsetLeft,
-            top: gif.offsetTop
-        }));
-        
-        console.log("gif data: ", gifData);
+
+            const gifData = Array.from(gifs).map(gif => ({
+                id: gif.id,
+                left: gif.offsetLeft,
+                top: gif.offsetTop,
+                imgSrc: gif.querySelector('img').src
+            }))
+
+            console.log("GIF data: ", gifData);
+
+    
 
         // get all saved states
         let storedStates;
@@ -295,7 +347,8 @@
             timestamp: new Date().toISOString(),
             drawingData: drawingData,
             songData: songData,
-            gifData: gifData
+            gifData: gifData,
+            color: body.style.backgroundColor
         }
 
         // add new state to stored states
@@ -369,22 +422,36 @@
             songElement.appendChild(contextMenu);
 
             songsContainer.appendChild(songElement);
+            console.log("song data: ", data);
 
-            makeDraggable(songElement);
-            songElement.style.left = data.left;
-            songElement.style.top = data.top;
 
+            songElement.style.top = data.top + 'px';
+            songElement.style.left = data.left + 'px';
 
         });
+
+        const gifsContainer = document.getElementById('gifCC');
+        gifsContainer.innerHTML = '';
 
         // reposition gifs
         state.gifData.forEach(data => {
-            const gifElement = document.getElementById(data.id);
-            if(gifElement) {
-                gifElement.style.left = data.left;
-                gifElement.style.top = data.top;
-            }
+            const gifElement = document.createElement('div');
+            gifElement.classList.add('gif-container');
+            gifElement.id = data.id;
+            const img = document.createElement('img');
+            img.src = data.imgSrc;
+            gifElement.appendChild(img);
+            gifsContainer.appendChild(gifElement);
+
+            console.log("gif data: ", data);
+
+
+            gifElement.style.top = data.top + 'px';
+            gifElement.style.left = data.left + 'px';
+            
         });
+
+        body.style.backgroundColor = state.color;
     }
 
     // load states from localStorage
@@ -411,10 +478,13 @@
         let out = document.querySelector(".gifCC");
 
         // add the gifs to the container
-        if(gifs && gifs.length > 0) {
+        if(gifs) {
             gifs.forEach((gif, index) => {
                 let gifContainer = document.createElement("div");
                 gifContainer.classList.add("gif-container");
+                gifContainer.id ="gif_" + index;
+
+                console.log(gifContainer);
 
                 let fig = document.createElement("figure");
                 let img = document.createElement("img");
@@ -440,7 +510,7 @@
         var gifss = document.querySelectorAll('.gif-container');
 
         gifss.forEach(function(gifs) {
-            makeDraggable(gifs);
+            makeDraggable2(gifs);
         });
 
         // play song on click
