@@ -33,6 +33,8 @@
                 padding: 20px;
             }
 
+            
+
             .album-cover img {
                 max-width: 100px;
                 height: auto;
@@ -42,9 +44,15 @@
             .draggable {
                 position: absolute;
                 cursor: move;
-                border: 1px solid #ccc;
+                border: none;
                 padding: 10px;
-                background-color: #f9f9f9;
+                background-color: transparent;
+            }
+
+            .draggable img{
+                width: 150px;
+                height: 150px;
+                object-fit: cover;
             }
 
             .gif-container {
@@ -279,10 +287,17 @@
             }
 
             .context-menu button {
-                padding: 0px;
-                margin: 0px;
-                min-width: 150px;
-                list-style: none;
+
+                width: 80px; /* Set a fixed width */
+                height: 20px; /* Set a fixed height */
+                font-size: 0.8em; /* Adjust the font size */
+                padding: 2px 4px; /* Reduce padding to make the button smaller */
+                margin: 2px; /* Adjust margin if needed */
+                border-radius: 4px; /* Optional: rounded corners */
+                border: 1px solid #ccc; /* Optional: border around the button */
+                background-color: green; /* Optional: background color */
+                cursor: pointer; /* Pointer cursor on hover */
+                box-sizing: border-box; /* Ensure padding and border are included in width/height */
             }
 
             .context-menu button:hover {
