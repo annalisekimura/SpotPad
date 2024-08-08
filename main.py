@@ -23,7 +23,7 @@ global_gifs = []
 # home page route
 @app.route('/')
 def index():
-    return render_template('home.html')
+    return render_template('index.html')
 
 # login route
 @app.route('/login')
